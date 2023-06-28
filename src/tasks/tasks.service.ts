@@ -1,73 +1,62 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Task, TaskStatus } from './tasks.model';
-import { v4 as uuid } from 'uuid';
+import { TaskStatus } from './tasks-status.enum';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TasksFilterDto } from './dto/filter-tasks.dto';
+import { TasksRepository } from './tasks.repository';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Task } from './tasks.entity';
 
 @Injectable()
 export class TasksService {
-  private tasks: Task[] = [];
+  constructor(
+    @InjectRepository(TasksRepository)
+    private tasks_repository: TasksRepository,
+  ) {}
 
-  getAllTasks(): Task[] {
-    return this.tasks;
+  async getAllTasks(): Promise<Task[]> {
+    return await this.tasks_repository.getTasks();
   }
 
-  getTaskByID(id: string): Task {
-    const task = this.getAllTasks().filter((task) => task.id === id)[0];
-
+  async getTaskByID(id: string): Promise<Task> {
+    /* ---------------------------------------
+    Service responsible for getting a task by its ID.
+    ---------------------------------------*/
+    const task = await this.tasks_repository.findOne({ where: { id } });
     if (!task) {
       throw new NotFoundException(`Task ${id} not found`);
     }
     return task;
   }
-
-  getTasksWithFilters(params: TasksFilterDto): Task[] {
-    const { status, search } = params;
-
-    // get all the tasks
-    let tasks = this.getAllTasks();
-
-    // filter tasks with the status param provided
-    if (status) {
-      tasks = tasks.filter((task) => task.status === status);
-    }
-
-    // filter tasks with the search param provided
-    if (search) {
-      tasks = tasks.filter((task) => {
-        if (task.title.includes(search) || task.description.includes(search)) {
-          return true;
-        }
-        return false;
-      });
-    }
-
+  async getTasksWithFilters(params: TasksFilterDto): Promise<Task[]> {
+    /* ----------------------------------------------------------
+    Service responsible for getting a list of filtered tasks.
+    -----------------------------------------------------------*/
+    const tasks = await this.tasks_repository.getTasksByOptions(params);
     return tasks;
   }
 
-  createTask(payload: CreateTaskDto): Task {
-    const { title, description } = payload;
-    const task: Task = {
-      id: uuid(),
-      title: title,
-      description: description,
-      status: TaskStatus.OPEN,
-    };
+  async createTask(payload: CreateTaskDto): Promise<Task> {
+    /* ---------------------------------------
+    Service responsible for creating a task.
+    ---------------------------------------*/
+    return this.tasks_repository.createTask(payload);
+  }
 
-    this.tasks.push(task);
+  async updateTask(id: string, status: TaskStatus): Promise<Task> {
+    /* ---------------------------------------
+    Service responsible for updating a task.
+    ---------------------------------------*/
+    const task = await this.getTaskByID(id);
+    console.log('Task Status: ', status);
     return task;
   }
 
-  updateTask(id: string, status: TaskStatus): Task {
-    const task = this.getTaskByID(id);
-    task.status = status;
-    return task;
-  }
-
-  deleteTask(id: string): string {
-    const task = this.getTaskByID(id);
-    const taskWithIDIndex = this.tasks.findIndex((tsk) => tsk.id == task.id);
-    this.tasks.splice(taskWithIDIndex);
+  async deleteTask(id: string): Promise<string> {
+    /* ---------------------------------------
+    Service responsible for deleting a task.
+    ---------------------------------------*/
+    const task = await this.getTaskByID(id);
+    this.tasks_repository.deleteTask(task);
     return 'Task successfully deleted!';
   }
 }
