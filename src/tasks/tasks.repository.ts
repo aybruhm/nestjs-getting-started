@@ -5,6 +5,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskStatus } from './tasks-status.enum';
 import { DeleteResult } from 'typeorm/query-builder/result/DeleteResult';
 import { TasksFilterDto } from './dto/filter-tasks.dto';
+import { User } from 'src/auth/user.entity';
 
 @Injectable()
 export class TasksRepository extends Repository<Task> {
@@ -44,7 +45,7 @@ export class TasksRepository extends Repository<Task> {
     return tasks;
   }
 
-  async createTask(payload: CreateTaskDto): Promise<Task> {
+  async createTask(payload: CreateTaskDto, user: User): Promise<Task> {
     /*--------------------------------------------------
 	Responsible for creating a task to the database.
 	----------------------------------------------------*/
@@ -53,6 +54,7 @@ export class TasksRepository extends Repository<Task> {
       title: title,
       description: description,
       status: TaskStatus.OPEN,
+      user: user,
     });
 
     await this.save(task);
