@@ -11,6 +11,8 @@ services:
       - .:/task_management
     command: >
       sh -c "npm run start:dev"
+    env_file:
+      - ./.env
     environment:
       - ADMIN_DATABASE_URL=postgres://postgres:postgres@db/task_management_db
     depends_on:
