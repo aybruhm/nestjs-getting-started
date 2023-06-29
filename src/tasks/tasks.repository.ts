@@ -13,17 +13,17 @@ export class TasksRepository extends Repository<Task> {
     super(Task, data_source.createEntityManager());
   }
 
-  async getTasks(): Promise<Task[]> {
+  async getTasks(user: User): Promise<Task[]> {
     /*--------------------------------------------------
 	Responsible for retrieving tasks from the database.
 	----------------------------------------------------*/
     const query = this.createQueryBuilder('tasks');
 
-    const tasks = await query.getMany();
+    const tasks = await query.where({ user }).getMany();
     return tasks;
   }
 
-  async getTasksByOptions(params: TasksFilterDto): Promise<Task[]> {
+  async getTasksByOptions(params: TasksFilterDto, user: User): Promise<Task[]> {
     /*--------------------------------------------------
 	Responsible for filtering tasks from the database.
 	----------------------------------------------------*/
@@ -36,12 +36,12 @@ export class TasksRepository extends Repository<Task> {
 
     if (search) {
       query.andWhere(
-        'LOWER(tasks.title) LIKE LOWER(:search) OR LOWER(tasks.description) LIKE LOWER(:search)',
+        '(LOWER(tasks.title) LIKE LOWER(:search) OR LOWER(tasks.description) LIKE LOWER(:search))',
         { search: `%${search}%` },
       );
     }
 
-    const tasks = await query.getMany();
+    const tasks = await query.where({ user }).getMany();
     return tasks;
   }
 

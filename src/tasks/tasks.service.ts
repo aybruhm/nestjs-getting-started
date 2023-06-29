@@ -14,8 +14,8 @@ export class TasksService {
     private tasks_repository: TasksRepository,
   ) {}
 
-  async getAllTasks(): Promise<Task[]> {
-    return await this.tasks_repository.getTasks();
+  async getAllTasks(user: User): Promise<Task[]> {
+    return await this.tasks_repository.getTasks(user);
   }
 
   async getTaskByID(id: string): Promise<Task> {
@@ -29,11 +29,14 @@ export class TasksService {
     return task;
   }
 
-  async getTasksWithFilters(params: TasksFilterDto): Promise<Task[]> {
+  async getTasksWithFilters(
+    params: TasksFilterDto,
+    user: User,
+  ): Promise<Task[]> {
     /* ----------------------------------------------------------
     Service responsible for getting a list of filtered tasks.
     -----------------------------------------------------------*/
-    const tasks = await this.tasks_repository.getTasksByOptions(params);
+    const tasks = await this.tasks_repository.getTasksByOptions(params, user);
     return tasks;
   }
 

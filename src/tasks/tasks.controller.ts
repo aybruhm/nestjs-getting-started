@@ -24,13 +24,16 @@ export class TasksController {
   constructor(private tasks_service: TasksService) {}
 
   @Get()
-  async getTasks(@Query() params: TasksFilterDto): Promise<Task[]> {
+  async getTasks(
+    @Query() params: TasksFilterDto,
+    @GetUser() user: User,
+  ): Promise<Task[]> {
     // if filters are defined, call service to execute get tasks with filters method
     // otherwise, just call service to execute get all tasks method
     if (Object.keys(params).length) {
-      return this.tasks_service.getTasksWithFilters(params);
+      return this.tasks_service.getTasksWithFilters(params, user);
     } else {
-      return this.tasks_service.getAllTasks();
+      return this.tasks_service.getAllTasks(user);
     }
   }
 
