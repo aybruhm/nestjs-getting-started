@@ -7,6 +7,7 @@ import {
   Body,
   Query,
   Param,
+  Logger,
   UseGuards,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
@@ -21,6 +22,7 @@ import { User } from 'src/auth/user.entity';
 @Controller('tasks')
 @UseGuards(AuthGuard())
 export class TasksController {
+  private logger = new Logger('TasksController');
   constructor(private tasks_service: TasksService) {}
 
   @Get()
@@ -31,6 +33,11 @@ export class TasksController {
     // if filters are defined, call service to execute get tasks with filters method
     // otherwise, just call service to execute get all tasks method
     if (Object.keys(params).length) {
+      this.logger.verbose(
+        `User '${
+          user.username
+        }' retrieving all tasks with params: ${JSON.stringify(params)}`,
+      );
       return this.tasks_service.getTasksWithFilters(params, user);
     } else {
       return this.tasks_service.getAllTasks(user);

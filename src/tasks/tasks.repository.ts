@@ -1,6 +1,10 @@
 import { DataSource, Repository } from 'typeorm';
 import { Task } from './tasks.entity';
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskStatus } from './tasks-status.enum';
 import { DeleteResult } from 'typeorm/query-builder/result/DeleteResult';
@@ -9,6 +13,8 @@ import { User } from 'src/auth/user.entity';
 
 @Injectable()
 export class TasksRepository extends Repository<Task> {
+  private logger = new Logger();
+
   constructor(private data_source: DataSource) {
     super(Task, data_source.createEntityManager());
   }
@@ -18,9 +24,15 @@ export class TasksRepository extends Repository<Task> {
 	Responsible for retrieving tasks from the database.
 	----------------------------------------------------*/
     const query = this.createQueryBuilder('tasks');
-
-    const tasks = await query.where({ user }).getMany();
-    return tasks;
+    try {
+      const tasks = await query.where({ user }).getMany();
+      return tasks;
+    } catch (err) {
+      this.logger.error(
+        `Failed to retrieve tasks from database for user ${user.username}. Meta information: ${err.stack}`,
+      );
+      throw new InternalServerErrorException();
+    }
   }
 
   async getTasksByOptions(params: TasksFilterDto, user: User): Promise<Task[]> {
