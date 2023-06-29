@@ -1,5 +1,5 @@
 # Base image
-FROM node:20-bullseye-slim
+FROM node:18.16-bullseye-slim
 
 # Create app directory
 WORKDIR /task_management
