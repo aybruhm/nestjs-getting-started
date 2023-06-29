@@ -16,7 +16,9 @@ export class TasksRepository extends Repository<Task> {
     /*--------------------------------------------------
 	Responsible for retrieving tasks from the database.
 	----------------------------------------------------*/
-    const tasks = await this.createQueryBuilder('tasks').getMany();
+    const query = this.createQueryBuilder('tasks');
+
+    const tasks = await query.getMany();
     return tasks;
   }
 
@@ -25,12 +27,20 @@ export class TasksRepository extends Repository<Task> {
 	Responsible for filtering tasks from the database.
 	----------------------------------------------------*/
     const { status, search } = params;
-    console.log('Search: ', search);
-    const tasks = await this.find({
-      where: {
-        status: status,
-      },
-    });
+    const query = this.createQueryBuilder('tasks');
+
+    if (status) {
+      query.andWhere('tasks.status = :status', { status });
+    }
+
+    if (search) {
+      query.andWhere(
+        'LOWER(tasks.title) LIKE LOWER(:search) OR LOWER(tasks.description) LIKE LOWER(:search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    const tasks = await query.getMany();
     return tasks;
   }
 
