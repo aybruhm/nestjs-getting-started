@@ -55,8 +55,12 @@ export class TasksService {
     /* ---------------------------------------
     Service responsible for deleting a task.
     ---------------------------------------*/
-    const task = await this.getTaskByID(id);
-    this.tasks_repository.deleteTask(task);
+    const result = await this.tasks_repository.deleteTask(id);
+
+    if (result.affected === 0) {
+      throw new NotFoundException(`Task ${id} not found`);
+    }
+
     return 'Task successfully deleted!';
   }
 }
