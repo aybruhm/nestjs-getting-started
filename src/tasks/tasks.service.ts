@@ -27,6 +27,7 @@ export class TasksService {
     }
     return task;
   }
+
   async getTasksWithFilters(params: TasksFilterDto): Promise<Task[]> {
     /* ----------------------------------------------------------
     Service responsible for getting a list of filtered tasks.
@@ -47,7 +48,8 @@ export class TasksService {
     Service responsible for updating a task.
     ---------------------------------------*/
     const task = await this.getTaskByID(id);
-    console.log('Task Status: ', status);
+    task.status = status;
+    await this.tasks_repository.save(task);
     return task;
   }
 
