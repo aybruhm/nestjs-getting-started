@@ -44,7 +44,6 @@ export class TasksController {
     @Param('id') id: string,
     @Body() payload: UpdateTaskStatusDto,
   ): Promise<Task> {
-    // TODO: in progress
     const { status } = payload;
     return this.tasks_service.updateTask(id, status);
   }
