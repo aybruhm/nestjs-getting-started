@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
-import { AppModule } from './app.module';
+import { AppModule } from './tasks/app.module';
 import { TransformInterceptor } from './transform.interceptor';
 
 async function bootstrap() {
