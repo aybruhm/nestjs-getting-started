@@ -61,11 +61,11 @@ export class TasksRepository extends Repository<Task> {
     return task;
   }
 
-  async deleteTask(id: string): Promise<DeleteResult> {
+  async deleteTask(id: string, user: User): Promise<DeleteResult> {
     /*--------------------------------------------------
 	Responsible for deleting a task from the database.
 	----------------------------------------------------*/
-    const deleted = await this.delete(id);
+    const deleted = await this.delete({ id, user });
     return deleted;
   }
 }

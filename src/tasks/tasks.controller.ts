@@ -38,8 +38,11 @@ export class TasksController {
   }
 
   @Get(':id')
-  async getSingleTask(@Param('id') id: string): Promise<Task> {
-    return this.tasks_service.getTaskByID(id);
+  async getSingleTask(
+    @Param('id') id: string,
+    @GetUser() user: User,
+  ): Promise<Task> {
+    return this.tasks_service.getTaskByID(id, user);
   }
 
   @Post()
@@ -54,14 +57,18 @@ export class TasksController {
   async updateSingleTask(
     @Param('id') id: string,
     @Body() payload: UpdateTaskStatusDto,
+    @GetUser() user: User,
   ): Promise<Task> {
     const { status } = payload;
-    return this.tasks_service.updateTask(id, status);
+    return this.tasks_service.updateTask(id, status, user);
   }
 
   @Delete(':id')
-  async deleteSingleTask(@Param('id') id: string): Promise<object> {
-    const deleted = await this.tasks_service.deleteTask(id);
+  async deleteSingleTask(
+    @Param('id') id: string,
+    @GetUser() user: User,
+  ): Promise<object> {
+    const deleted = await this.tasks_service.deleteTask(id, user);
     return { message: deleted };
   }
 }
