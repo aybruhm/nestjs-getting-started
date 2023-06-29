@@ -3,6 +3,7 @@ import { Task } from './tasks.entity';
 import { Injectable } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskStatus } from './tasks-status.enum';
+import { DeleteResult } from 'typeorm/query-builder/result/DeleteResult';
 import { TasksFilterDto } from './dto/filter-tasks.dto';
 
 @Injectable()
@@ -48,10 +49,11 @@ export class TasksRepository extends Repository<Task> {
     return task;
   }
 
-  async deleteTask(task: Task): Promise<undefined> {
+  async deleteTask(id: string): Promise<DeleteResult> {
     /*--------------------------------------------------
 	Responsible for deleting a task from the database.
 	----------------------------------------------------*/
-    this.remove(task);
+    const deleted = await this.delete(id);
+    return deleted;
   }
 }
